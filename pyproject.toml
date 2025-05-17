@@ -1,0 +1,12 @@
+[project]
+name = "hack-mcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115.12",
+    "fastmcp>=2.3.4",
+    "httpx>=0.28.1",
+    "mcp[cli]>=1.9.0",
+]
