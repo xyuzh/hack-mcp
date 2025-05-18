@@ -8,6 +8,32 @@ from browser_use.browser.context import BrowserContext, BrowserContextConfig, Br
 from langchain_anthropic import ChatAnthropic
 from playwright.async_api import Page, BrowserContext as PlaywrightContext
 
+def get_context(bb):
+    """
+    Read context from file, if successful return context id,
+    otherwise create a new context and return its id.
+    """
+    try:
+        with open("run_browser/context", "r") as f:
+            context_id = f.read().strip()
+            if context_id == "":
+                context_id = create_context(bb)
+                with open("run_browser/context", "w") as f:
+                    f.write(context_id)     
+        return context_id
+    except:
+        context_id = create_context(bb)
+        with open("run_browser/context", "w") as f:
+            f.write(context_id)
+        return context_id
+
+def create_context(bb):
+    """Create a new context and return its id."""
+    context = bb.contexts.create(project_id=os.environ["BROWSERBASE_PROJECT_ID"])
+    with open("run_browser/context", "w") as f:
+        f.write(str(context.id))
+    return context.id
+
 class ExtendedBrowserSession(BrowserSession):
     """Extended version of BrowserSession that includes current_page"""
     def __init__(
@@ -49,8 +75,15 @@ async def setup_browser() -> tuple[Browser, UseBrowserbaseContext]:
         tuple[Browser, UseBrowserbaseContext]: Configured browser and context.
     """
     bb = Browserbase(api_key=os.environ["BROWSERBASE_API_KEY"])
+    context_id = get_context(bb)
     bb_session = bb.sessions.create(
         project_id=os.environ["BROWSERBASE_PROJECT_ID"],
+        browser_settings={
+        "context": {
+          "id": context_id,
+          "persist": True
+        }
+      }
     )
 
     browser = Browser(config=BrowserConfig(cdp_url=bb_session.connect_url))
