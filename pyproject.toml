@@ -9,4 +9,6 @@ dependencies = [
     "fastmcp>=2.3.4",
     "httpx>=0.28.1",
     "mcp[cli]>=1.9.0",
+    "browserbase==1.4.0",
+    "browser-use==0.1.40",
 ]
